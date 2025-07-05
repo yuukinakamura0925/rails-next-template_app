@@ -1,0 +1,31 @@
+FROM ruby:3.1.4
+
+# Install dependencies
+RUN apt-get update -qq && apt-get install -y \
+    postgresql-client \
+    build-essential \
+    libpq-dev \
+    nodejs \
+    npm \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy Gemfile and Gemfile.lock
+COPY Gemfile Gemfile.lock ./
+
+# Install gems
+RUN bundle install
+
+# Copy the rest of the application
+COPY . .
+
+# Create tmp directories
+RUN mkdir -p tmp/pids tmp/cache tmp/sockets
+
+# Expose port
+EXPOSE 3001
+
+# Start the Rails server
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "3001"]
