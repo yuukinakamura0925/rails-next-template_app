@@ -12,18 +12,17 @@ if Rails.env.development?
     user.active = true
   end
 
-  if admin_user.user_profile.blank?
-    admin_user.create_user_profile!(
-      first_name: 'Admin',
-      last_name: 'User',
-      display_name: 'システム管理者',
-      bio: '開発用の管理者アカウントです',
-      metadata: {
-        development: true,
-        created_by: 'seed'
-      }
-    )
-  end
+  # UserProfileにデータを設定
+  admin_user.user_profile.update!(
+    first_name: 'Admin',
+    last_name: 'User',
+    display_name: 'システム管理者',
+    bio: '開発用の管理者アカウントです',
+    metadata: {
+      development: true,
+      created_by: 'seed'
+    }
+  )
 
   puts "✅ Admin user created: #{admin_user.email}"
 
@@ -34,23 +33,22 @@ if Rails.env.development?
     user.active = true
   end
 
-  if sample_user.user_profile.blank?
-    sample_user.create_user_profile!(
-      first_name: 'サンプル',
-      last_name: 'ユーザー',
-      display_name: 'sample_user',
-      phone: '090-1234-5678',
-      bio: 'これはサンプルユーザーです。開発・テスト用のアカウントです。',
-      metadata: {
-        development: true,
-        created_by: 'seed',
-        preferences: {
-          language: 'ja',
-          timezone: 'Asia/Tokyo'
-        }
+  # UserProfileにデータを設定
+  sample_user.user_profile.update!(
+    first_name: 'サンプル',
+    last_name: 'ユーザー',
+    display_name: 'sample_user',
+    phone: '090-1234-5678',
+    bio: 'これはサンプルユーザーです。開発・テスト用のアカウントです。',
+    metadata: {
+      development: true,
+      created_by: 'seed',
+      preferences: {
+        language: 'ja',
+        timezone: 'Asia/Tokyo'
       }
-    )
-  end
+    }
+  )
   
   puts "✅ Sample user created: #{sample_user.email}"
 end

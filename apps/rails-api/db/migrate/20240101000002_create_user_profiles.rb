@@ -1,7 +1,7 @@
 class CreateUserProfiles < ActiveRecord::Migration[7.1]
   def change
     create_table :user_profiles do |t|
-      t.references :user, null: false, foreign_key: { on_delete: :cascade }
+      t.references :user, null: false, foreign_key: { on_delete: :cascade }, index: { unique: true }
       t.string :first_name
       t.string :last_name
       t.string :display_name
@@ -12,7 +12,5 @@ class CreateUserProfiles < ActiveRecord::Migration[7.1]
 
       t.timestamps
     end
-
-    add_index :user_profiles, :user_id, unique: true
   end
 end
