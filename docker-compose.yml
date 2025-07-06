@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: rails-next-postgres
+    environment:
+      POSTGRES_DB: rails_next_template_development
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/db:/docker-entrypoint-initdb.d
+    networks:
+      - rails-next-network
+    restart: unless-stopped
+
+  # Rails API
+  rails-api:
+    build:
+      context: ./apps/rails-api
+      dockerfile: Dockerfile.dev
+    container_name: rails-next-api
+    environment:
+      - RAILS_ENV=development
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/rails_next_template_development
+      - RAILS_MASTER_KEY=${RAILS_MASTER_KEY:-}
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./apps/rails-api:/app
+      - rails_bundle:/usr/local/bundle
+      - rails_tmp:/app/tmp
+    depends_on:
+      - postgres
+    networks:
+      - rails-next-network
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    command: >
+      sh -c "
+        bundle check || bundle install &&
+        bundle exec rails db:prepare &&
+        bundle exec rails server -b 0.0.0.0 -p 3001
+      "
+
+  # User Web (Next.js)
+  user-web:
+    build:
+      context: ./apps/user-web
+      dockerfile: Dockerfile.dev
+    container_name: rails-next-user-web
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:3001
+      - PORT=3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./apps/user-web:/app
+      - user_web_node_modules:/app/node_modules
+      - user_web_next:/app/.next
+    networks:
+      - rails-next-network
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+  # Admin Web (Next.js)
+  admin-web:
+    build:
+      context: ./apps/admin-web
+      dockerfile: Dockerfile.dev
+    container_name: rails-next-admin-web
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:3001
+      - PORT=3002
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./apps/admin-web:/app
+      - admin_web_node_modules:/app/node_modules
+      - admin_web_next:/app/.next
+    networks:
+      - rails-next-network
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  rails_bundle:
+  rails_tmp:
+  user_web_node_modules:
+  user_web_next:
+  admin_web_node_modules:
+  admin_web_next:
+
+networks:
+  rails-next-network:
+    driver: bridge
