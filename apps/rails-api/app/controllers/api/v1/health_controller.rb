@@ -1,7 +1,5 @@
 class Api::V1::HealthController < ApplicationController
-  # Skip authentication for health check
-  skip_before_action :authenticate_user!, if: :skip_auth?
-  
+
   def show
     render json: {
       status: 'OK',
@@ -11,14 +9,7 @@ class Api::V1::HealthController < ApplicationController
       environment: Rails.env
     }
   end
-  
+
   private
-  
-  def skip_auth?
-    true
-  end
-  
-  def authenticate_user!
-    # Override base authentication for health check
-  end
+
 end
