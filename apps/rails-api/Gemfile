@@ -60,3 +60,6 @@ end
 gem "google-cloud-firestore"
 gem "jwt"
 
+# Pagination
+gem "kaminari"
+

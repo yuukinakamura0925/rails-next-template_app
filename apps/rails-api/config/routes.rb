@@ -9,15 +9,35 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       get :health, to: 'health#show'
-      # Future API endpoints will be added here
+
+      # User routes
+      get 'users/current', to: 'users#show'
+      patch 'users/current', to: 'users#update'
+      delete 'users/current', to: 'users#destroy'
+
+      # User profile routes
+      get 'user_profiles/current', to: 'user_profiles#show'
+      patch 'user_profiles/current', to: 'user_profiles#update'
+      patch 'user_profiles/current/metadata', to: 'user_profiles#update_metadata'
+      delete 'user_profiles/current/metadata/:key', to: 'user_profiles#delete_metadata'
     end
   end
-  
+
   # Admin API routes
   namespace :admin do
     namespace :v1 do
       get :health, to: 'health#show'
-      # Future admin API endpoints will be added here
+
+      # User management routes
+      resources :users do
+        member do
+          post :activate
+        end
+
+        collection do
+          get :stats
+        end
+      end
     end
   end
 
